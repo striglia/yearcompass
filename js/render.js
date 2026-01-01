@@ -60,6 +60,9 @@ export function renderSection(sectionId) {
     case 'life-areas':
       renderLifeAreasSection(container, section, sectionData.answers);
       break;
+    case 'life-areas-goals':
+      renderLifeAreasGoalsSection(container, section, sectionData.answers);
+      break;
     case 'triplets':
       renderTripletsSection(container, section, sectionData.answers);
       break;
@@ -125,6 +128,48 @@ function renderLifeAreasSection(container, section, answers = {}) {
         rows="2"
         aria-label="Notes for ${escapeHtml(field.label)}"
       >${escapeHtml(notesValue)}</textarea>
+    `;
+
+    // Set up auto-save listeners
+    setupFieldListeners(fieldEl);
+
+    container.appendChild(fieldEl);
+  });
+}
+
+/**
+ * Render a life areas goals section (for year ahead planning)
+ */
+function renderLifeAreasGoalsSection(container, section, answers = {}) {
+  const fields = section.fields || [];
+
+  fields.forEach(field => {
+    const fieldEl = document.createElement('div');
+    fieldEl.className = 'life-area-goal field';
+
+    const goalValue = answers[`${field.id}-goal`] || '';
+    const actionsValue = answers[`${field.id}-actions`] || '';
+
+    fieldEl.innerHTML = `
+      <h4>${escapeHtml(field.label)}</h4>
+      <div class="goal-field">
+        <label for="${field.id}-goal" class="field-prompt">What do you want to achieve?</label>
+        <textarea
+          id="${field.id}-goal"
+          data-field-id="${field.id}-goal"
+          rows="2"
+          aria-label="Goal for ${escapeHtml(field.label)}"
+        >${escapeHtml(goalValue)}</textarea>
+      </div>
+      <div class="actions-field">
+        <label for="${field.id}-actions" class="field-prompt">What actions will you take?</label>
+        <textarea
+          id="${field.id}-actions"
+          data-field-id="${field.id}-actions"
+          rows="2"
+          aria-label="Actions for ${escapeHtml(field.label)}"
+        >${escapeHtml(actionsValue)}</textarea>
+      </div>
     `;
 
     // Set up auto-save listeners
