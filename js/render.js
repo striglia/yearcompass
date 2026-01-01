@@ -8,6 +8,18 @@ import { getCurrentYear, saveAnswer } from './storage.js';
 import { updateProgress } from './navigation.js';
 
 /**
+ * Escape HTML characters to prevent XSS and broken markup
+ * @param {string} text - Text to escape
+ * @returns {string} Escaped text
+ */
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/**
  * Render a section by ID
  * @param {string} sectionId - Section ID to render
  */
@@ -96,14 +108,14 @@ function renderLifeAreasSection(container, section, answers = {}) {
     const notesValue = answers[`${field.id}-notes`] || '';
 
     fieldEl.innerHTML = `
-      <h4>${field.label}</h4>
+      <h4>${escapeHtml(field.label)}</h4>
       <div class="rating-control">
         <input type="range"
                id="${field.id}-rating"
                data-field-id="${field.id}-rating"
                min="1" max="10"
                value="${ratingValue}"
-               aria-label="Rating for ${field.label}">
+               aria-label="Rating for ${escapeHtml(field.label)}">
         <span class="rating-value">${ratingValue}</span>
       </div>
       <textarea
@@ -111,8 +123,8 @@ function renderLifeAreasSection(container, section, answers = {}) {
         data-field-id="${field.id}-notes"
         placeholder="Notes..."
         rows="2"
-        aria-label="Notes for ${field.label}"
-      >${notesValue}</textarea>
+        aria-label="Notes for ${escapeHtml(field.label)}"
+      >${escapeHtml(notesValue)}</textarea>
     `;
 
     // Set up auto-save listeners
@@ -132,7 +144,7 @@ function renderTripletsSection(container, section, answers = {}) {
     const groupEl = document.createElement('div');
     groupEl.className = 'triplet-group field';
 
-    groupEl.innerHTML = `<h4>${triplet.prompt}</h4>`;
+    groupEl.innerHTML = `<h4>${escapeHtml(triplet.prompt)}</h4>`;
 
     for (let i = 1; i <= 3; i++) {
       const fieldId = `${triplet.id}-${i}`;
@@ -173,8 +185,8 @@ function createField(field, value = '') {
           data-field-id="${field.id}"
           rows="${field.rows || 3}"
           ${field.markdown ? 'data-markdown="true"' : ''}
-          aria-label="${field.prompt || field.id}"
-        >${value}</textarea>
+          aria-label="${escapeHtml(field.prompt || field.id)}"
+        >${escapeHtml(value)}</textarea>
       `;
       break;
     case 'text':
@@ -183,8 +195,8 @@ function createField(field, value = '') {
           type="text"
           id="${field.id}"
           data-field-id="${field.id}"
-          value="${value}"
-          aria-label="${field.prompt || field.id}"
+          value="${escapeHtml(value)}"
+          aria-label="${escapeHtml(field.prompt || field.id)}"
         >
       `;
       break;
@@ -194,8 +206,8 @@ function createField(field, value = '') {
           id="${field.id}"
           data-field-id="${field.id}"
           rows="3"
-          aria-label="${field.prompt || field.id}"
-        >${value}</textarea>
+          aria-label="${escapeHtml(field.prompt || field.id)}"
+        >${escapeHtml(value)}</textarea>
       `;
   }
 
