@@ -1,0 +1,89 @@
+/**
+ * Print Styles for YearCompass
+ * Used when exporting to PDF via browser print dialog
+ */
+
+@media print {
+  /* Hide UI chrome */
+  .app-header,
+  .sidebar,
+  .app-footer,
+  .sidebar-toggle,
+  .btn,
+  .year-selector,
+  .progress-container {
+    display: none !important;
+  }
+
+  /* Reset layout */
+  body {
+    background: white;
+    color: black;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  #app {
+    display: block;
+  }
+
+  .app-layout {
+    display: block;
+  }
+
+  .main-content {
+    padding: 0;
+    overflow: visible;
+  }
+
+  /* Section styling for print */
+  .section {
+    page-break-inside: avoid;
+    margin-bottom: 2em;
+  }
+
+  .section-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25em;
+  }
+
+  /* Show content fields */
+  textarea,
+  input[type="text"] {
+    border: none;
+    padding: 0;
+    background: transparent;
+    font-size: 11pt;
+    min-height: auto;
+    height: auto;
+  }
+
+  /* Rendered markdown content */
+  .markdown-preview {
+    padding: 0;
+    background: transparent;
+  }
+
+  /* Page breaks between major sections */
+  .section[data-part="1"]:first-of-type {
+    page-break-before: always;
+  }
+
+  .section[data-part="2"]:first-of-type {
+    page-break-before: always;
+  }
+
+  /* Print header/footer (if supported) */
+  @page {
+    margin: 1in;
+    @top-center {
+      content: "YearCompass";
+    }
+    @bottom-center {
+      content: counter(page);
+    }
+  }
+}

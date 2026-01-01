@@ -1,0 +1,58 @@
+/**
+ * CSS Custom Properties (Variables)
+ * Warm/cozy journal theme for YearCompass
+ */
+
+:root {
+  /* Color Palette */
+  --color-background: #FAF8F5;
+  --color-surface: #FFFFFF;
+  --color-text: #3D3D3D;
+  --color-text-muted: #6B6B6B;
+  --color-accent: #5B8A72; /* Muted teal */
+  --color-accent-hover: #4A7360;
+  --color-success: #7CB38A;
+  --color-border: #E8E4DF;
+  --color-border-focus: #5B8A72;
+
+  /* Typography */
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  --font-family-heading: Georgia, 'Times New Roman', serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --line-height-tight: 1.25;
+  --line-height-base: 1.6;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Layout */
+  --sidebar-width: 280px;
+  --header-height: 64px;
+  --footer-height: 56px;
+  --content-max-width: 720px;
+  --border-radius: 8px;
+  --border-radius-sm: 4px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+}
