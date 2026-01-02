@@ -603,3 +603,44 @@ textarea {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* New Year Banner */
+.new-year-banner {
+  background: linear-gradient(135deg, var(--color-accent) 0%, #5A8A6E 100%);
+  color: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.new-year-banner p {
+  margin: 0 0 var(--spacing-md);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+}
+
+.banner-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.new-year-banner .btn-primary {
+  background-color: white;
+  color: var(--color-accent);
+}
+
+.new-year-banner .btn-primary:hover {
+  background-color: var(--color-background);
+}
+
+.new-year-banner .btn-secondary {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+}
+
+.new-year-banner .btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
