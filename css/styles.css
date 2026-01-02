@@ -644,3 +644,106 @@ textarea {
 .new-year-banner .btn-secondary:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Markdown Support */
+.markdown-wrapper {
+  position: relative;
+}
+
+.markdown-toggle {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  z-index: 1;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.markdown-wrapper:hover .markdown-toggle,
+.markdown-toggle:focus {
+  opacity: 1;
+}
+
+.markdown-wrapper textarea {
+  padding-right: 80px;
+}
+
+.markdown-preview {
+  padding: var(--spacing-md);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  min-height: 100px;
+  cursor: pointer;
+  line-height: var(--line-height-relaxed);
+}
+
+.markdown-preview:hover {
+  border-color: var(--color-border-focus);
+}
+
+.markdown-preview p {
+  margin: 0 0 var(--spacing-md);
+}
+
+.markdown-preview p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-preview strong {
+  font-weight: 600;
+}
+
+.markdown-preview em {
+  font-style: italic;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: var(--spacing-md) 0;
+  padding-left: var(--spacing-xl);
+}
+
+.markdown-preview li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.markdown-preview blockquote {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-left: 3px solid var(--color-accent);
+  background-color: var(--color-background);
+  font-style: italic;
+}
+
+.markdown-preview code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background-color: var(--color-background);
+  border-radius: 3px;
+}
+
+.markdown-preview pre {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background-color: var(--color-background);
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+}
+
+.markdown-preview pre code {
+  padding: 0;
+  background: none;
+}
+
+.markdown-preview a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.markdown-preview a:hover {
+  text-decoration: underline;
+}

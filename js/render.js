@@ -6,6 +6,7 @@
 import { sections } from '../data/questions.js';
 import { getCurrentYear, saveAnswer } from './storage.js';
 import { updateProgress, updateSidebarIndicators } from './navigation.js';
+import { initMarkdownSupport } from './markdown.js';
 
 /**
  * Escape HTML characters to prevent XSS and broken markup
@@ -71,6 +72,9 @@ export function renderSection(sectionId) {
   }
 
   mainContent.appendChild(container);
+
+  // Initialize markdown support for any markdown-enabled textareas
+  initMarkdownSupport(container);
 }
 
 /**
