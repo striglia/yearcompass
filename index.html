@@ -12,6 +12,10 @@
 <body>
   <div id="app">
     <header class="app-header">
+      <button class="sidebar-toggle" aria-expanded="false" aria-controls="sidebar-nav">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="hamburger"></span>
+      </button>
       <h1 class="app-title">YearCompass</h1>
       <div class="header-controls">
         <select id="year-selector" class="year-selector" aria-label="Select year">
@@ -28,10 +32,6 @@
 
     <div class="app-layout">
       <nav class="sidebar" aria-label="Section navigation">
-        <button class="sidebar-toggle" aria-expanded="true" aria-controls="sidebar-nav">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="hamburger"></span>
-        </button>
         <ul id="sidebar-nav" class="nav-list">
           <!-- Navigation items populated by JS -->
         </ul>
