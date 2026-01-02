@@ -268,6 +268,15 @@ body {
 .save-status {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.save-status.saving {
+  color: var(--color-accent);
+}
+
+.save-status.saved {
+  color: var(--color-success);
 }
 
 /* Buttons */

@@ -7,6 +7,7 @@ import { sections } from '../data/questions.js';
 import { getCurrentYear, saveAnswer } from './storage.js';
 import { updateProgress, updateSidebarIndicators } from './navigation.js';
 import { initMarkdownSupport } from './markdown.js';
+import { showSaving, showSaved } from './save-indicator.js';
 
 /**
  * Escape HTML characters to prevent XSS and broken markup
@@ -287,11 +288,11 @@ function setupFieldListeners(container) {
 
       if (sectionId && fieldId) {
         saveAnswer(yearData.id, sectionId, fieldId, input.value);
-        updateSaveStatus('Saving...');
+        showSaving();
 
         // Update save status after debounce
         setTimeout(() => {
-          updateSaveStatus('Saved');
+          showSaved();
         }, 400);
 
         // Update progress and sidebar indicators
@@ -312,12 +313,3 @@ function setupFieldListeners(container) {
   });
 }
 
-/**
- * Update the save status indicator
- */
-function updateSaveStatus(status) {
-  const saveStatus = document.getElementById('save-status');
-  if (saveStatus) {
-    saveStatus.textContent = status;
-  }
-}

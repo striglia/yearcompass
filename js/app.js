@@ -7,6 +7,7 @@ import { initStorage, getCurrentYear } from './storage.js';
 import { initNavigation } from './navigation.js';
 import { renderSection } from './render.js';
 import { initYearSelector, checkNewYearPrompt } from './year.js';
+import { initSaveIndicator } from './save-indicator.js';
 
 /**
  * Initialize the YearCompass application
@@ -23,6 +24,9 @@ async function init() {
 
     // Get current year data
     const currentYear = getCurrentYear();
+
+    // Initialize save indicator with last modified time
+    initSaveIndicator(currentYear?.lastModified);
 
     // Initialize navigation
     initNavigation();
