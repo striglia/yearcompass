@@ -116,15 +116,17 @@ function renderLifeAreasSection(container, section, answers = {}) {
     const notesValue = answers[`${field.id}-notes`] || '';
 
     fieldEl.innerHTML = `
-      <h4>${escapeHtml(field.label)}</h4>
+      <h4 id="${field.id}-heading">${escapeHtml(field.label)}</h4>
       <div class="rating-control">
         <input type="range"
                id="${field.id}-rating"
                data-field-id="${field.id}-rating"
                min="1" max="10"
                value="${ratingValue}"
-               aria-label="Rating for ${escapeHtml(field.label)}">
-        <span class="rating-value">${ratingValue}</span>
+               aria-label="Rating for ${escapeHtml(field.label)}"
+               aria-valuetext="${ratingValue} out of 10"
+               aria-describedby="${field.id}-heading">
+        <span class="rating-value" aria-hidden="true">${ratingValue}</span>
       </div>
       <textarea
         id="${field.id}-notes"
@@ -308,6 +310,8 @@ function setupFieldListeners(container) {
         if (display) {
           display.textContent = e.target.value;
         }
+        // Update aria-valuetext for screen readers
+        input.setAttribute('aria-valuetext', `${e.target.value} out of 10`);
       });
     }
   });

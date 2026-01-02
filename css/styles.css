@@ -39,6 +39,39 @@ body {
   border: 0;
 }
 
+/* Skip link - visible only on focus for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-accent);
+  color: white;
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--border-radius);
+  z-index: 1000;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--spacing-sm);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-accent-light), var(--shadow-md);
+}
+
+/* Global focus styles - visible focus indicators */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Remove default outline when using :focus-visible */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* App Container */
 #app {
   display: flex;
