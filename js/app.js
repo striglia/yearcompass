@@ -8,6 +8,7 @@ import { initNavigation } from './navigation.js';
 import { renderSection } from './render.js';
 import { initYearSelector, checkNewYearPrompt } from './year.js';
 import { initSaveIndicator } from './save-indicator.js';
+import { initPdfExport } from './pdf.js';
 
 /**
  * Initialize the YearCompass application
@@ -33,6 +34,9 @@ async function init() {
 
     // Check if we should prompt for new year
     checkNewYearPrompt();
+
+    // Initialize PDF export
+    initPdfExport();
 
     // Remove loading state
     const mainContent = document.getElementById('main-content');
