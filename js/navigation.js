@@ -4,7 +4,7 @@
  */
 
 import { sections } from '../data/questions.js';
-import { getCurrentYear, saveAnswer } from './storage.js';
+import { getCurrentYear, saveCurrentSection, getCurrentSection, isSectionStarted } from './storage.js';
 import { renderSection } from './render.js';
 
 let currentSectionIndex = 0;
@@ -15,7 +15,33 @@ let currentSectionIndex = 0;
 export function initNavigation() {
   renderSidebar();
   setupNavigationListeners();
+  setupHashNavigation();
   updateProgress();
+
+  // Navigate to initial section (from URL hash, storage, or default)
+  const initialSection = getInitialSection();
+  navigateToSection(initialSection, false); // Don't show nudge on initial load
+}
+
+/**
+ * Get the initial section to display
+ * Priority: URL hash > stored currentSection > 'intro'
+ */
+function getInitialSection() {
+  // Check URL hash first
+  const hash = window.location.hash.slice(1);
+  if (hash && sections.find(s => s.id === hash)) {
+    return hash;
+  }
+
+  // Check stored currentSection
+  const stored = getCurrentSection();
+  if (stored && sections.find(s => s.id === stored)) {
+    return stored;
+  }
+
+  // Default to intro
+  return 'intro';
 }
 
 /**
@@ -48,12 +74,47 @@ function renderSidebar() {
     partSections.forEach(section => {
       const li = document.createElement('li');
       const button = document.createElement('button');
-      button.textContent = section.title;
       button.dataset.sectionId = section.id;
       button.addEventListener('click', () => navigateToSection(section.id));
+
+      // Add completion indicator
+      const isStarted = section.type !== 'info' && isSectionStarted(section.id);
+      button.innerHTML = `
+        <span class="nav-item-title">${section.title}</span>
+        ${isStarted ? '<span class="nav-item-check" aria-label="Started">✓</span>' : ''}
+      `;
+
       li.appendChild(button);
       navList.appendChild(li);
     });
+  });
+}
+
+/**
+ * Update completion indicators in sidebar
+ */
+export function updateSidebarIndicators() {
+  const navButtons = document.querySelectorAll('#sidebar-nav button');
+
+  navButtons.forEach(btn => {
+    const sectionId = btn.dataset.sectionId;
+    if (!sectionId) return;
+
+    const section = sections.find(s => s.id === sectionId);
+    if (!section || section.type === 'info') return;
+
+    const isStarted = isSectionStarted(sectionId);
+    const existingCheck = btn.querySelector('.nav-item-check');
+
+    if (isStarted && !existingCheck) {
+      const check = document.createElement('span');
+      check.className = 'nav-item-check';
+      check.setAttribute('aria-label', 'Started');
+      check.textContent = '✓';
+      btn.appendChild(check);
+    } else if (!isStarted && existingCheck) {
+      existingCheck.remove();
+    }
   });
 }
 
@@ -89,12 +150,37 @@ function setupNavigationListeners() {
 }
 
 /**
+ * Set up URL hash navigation
+ */
+function setupHashNavigation() {
+  // Handle back/forward browser navigation
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.slice(1);
+    if (hash && sections.find(s => s.id === hash)) {
+      const sectionIndex = sections.findIndex(s => s.id === hash);
+      if (sectionIndex !== currentSectionIndex) {
+        navigateToSection(hash, false);
+      }
+    }
+  });
+}
+
+/**
  * Navigate to a specific section
  * @param {string} sectionId - Section ID to navigate to
+ * @param {boolean} showNudge - Whether to show nudge for skipping incomplete section
  */
-export function navigateToSection(sectionId) {
+export function navigateToSection(sectionId, showNudge = true) {
   const sectionIndex = sections.findIndex(s => s.id === sectionId);
   if (sectionIndex === -1) return;
+
+  // Check if skipping an incomplete section (only for forward navigation)
+  if (showNudge && sectionIndex > currentSectionIndex) {
+    const currentSection = sections[currentSectionIndex];
+    if (currentSection.type !== 'info' && !isSectionStarted(currentSection.id)) {
+      showSkipNudge();
+    }
+  }
 
   currentSectionIndex = sectionIndex;
 
@@ -103,6 +189,15 @@ export function navigateToSection(sectionId) {
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.sectionId === sectionId);
   });
+
+  // Update URL hash (without triggering hashchange)
+  const newHash = `#${sectionId}`;
+  if (window.location.hash !== newHash) {
+    history.replaceState(null, '', newHash);
+  }
+
+  // Save current section to storage
+  saveCurrentSection(sectionId);
 
   // Render the section
   renderSection(sectionId);
@@ -113,6 +208,16 @@ export function navigateToSection(sectionId) {
   // Update progress
   updateProgress();
 
+  // Update sidebar indicators
+  updateSidebarIndicators();
+
+  // Close mobile sidebar if open
+  const sidebar = document.querySelector('.sidebar');
+  if (sidebar?.classList.contains('open')) {
+    sidebar.classList.remove('open');
+    document.querySelector('.sidebar-toggle')?.setAttribute('aria-expanded', 'false');
+  }
+
   // Scroll to top of content
   const mainContent = document.getElementById('main-content');
   if (mainContent) {
@@ -121,11 +226,35 @@ export function navigateToSection(sectionId) {
 }
 
 /**
+ * Show a gentle nudge when skipping an incomplete section
+ */
+function showSkipNudge() {
+  // Create nudge element if it doesn't exist
+  let nudge = document.querySelector('.skip-nudge');
+  if (!nudge) {
+    nudge = document.createElement('div');
+    nudge.className = 'skip-nudge';
+    nudge.setAttribute('role', 'status');
+    nudge.setAttribute('aria-live', 'polite');
+    document.body.appendChild(nudge);
+  }
+
+  // Show the nudge
+  nudge.textContent = 'You can come back to this anytime';
+  nudge.classList.add('visible');
+
+  // Hide after a few seconds
+  setTimeout(() => {
+    nudge.classList.remove('visible');
+  }, 3000);
+}
+
+/**
  * Navigate to the previous section
  */
 function navigatePrevious() {
   if (currentSectionIndex > 0) {
-    navigateToSection(sections[currentSectionIndex - 1].id);
+    navigateToSection(sections[currentSectionIndex - 1].id, false);
   }
 }
 
@@ -171,16 +300,58 @@ export function updateProgress() {
     if (section.type === 'info') return;
 
     const sectionData = yearData.sections[section.id];
-    const fields = section.fields || [];
 
-    totalFields += fields.length;
+    // Count fields based on section type
+    if (section.type === 'triplets') {
+      const tripletCount = section.triplets?.length || 0;
+      totalFields += tripletCount * 3;
 
-    if (sectionData?.answers) {
-      fields.forEach(field => {
-        if (sectionData.answers[field.id]?.trim()) {
-          filledFields++;
-        }
-      });
+      if (sectionData?.answers) {
+        section.triplets?.forEach(triplet => {
+          for (let i = 1; i <= 3; i++) {
+            if (sectionData.answers[`${triplet.id}-${i}`]?.trim()) {
+              filledFields++;
+            }
+          }
+        });
+      }
+    } else if (section.type === 'life-areas') {
+      const areaCount = section.fields?.length || 0;
+      totalFields += areaCount * 2; // rating + notes
+
+      if (sectionData?.answers) {
+        section.fields?.forEach(field => {
+          // Rating always has a default value, so check if notes are filled
+          if (sectionData.answers[`${field.id}-notes`]?.trim()) {
+            filledFields += 2; // Count both as filled if notes present
+          }
+        });
+      }
+    } else if (section.type === 'life-areas-goals') {
+      const areaCount = section.fields?.length || 0;
+      totalFields += areaCount * 2; // goal + actions
+
+      if (sectionData?.answers) {
+        section.fields?.forEach(field => {
+          if (sectionData.answers[`${field.id}-goal`]?.trim()) {
+            filledFields++;
+          }
+          if (sectionData.answers[`${field.id}-actions`]?.trim()) {
+            filledFields++;
+          }
+        });
+      }
+    } else {
+      const fields = section.fields || [];
+      totalFields += fields.length;
+
+      if (sectionData?.answers) {
+        fields.forEach(field => {
+          if (sectionData.answers[field.id]?.trim()) {
+            filledFields++;
+          }
+        });
+      }
     }
   });
 

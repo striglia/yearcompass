@@ -5,7 +5,7 @@
 
 import { sections } from '../data/questions.js';
 import { getCurrentYear, saveAnswer } from './storage.js';
-import { updateProgress } from './navigation.js';
+import { updateProgress, updateSidebarIndicators } from './navigation.js';
 
 /**
  * Escape HTML characters to prevent XSS and broken markup
@@ -290,8 +290,9 @@ function setupFieldListeners(container) {
           updateSaveStatus('Saved');
         }, 400);
 
-        // Update progress
+        // Update progress and sidebar indicators
         updateProgress();
+        updateSidebarIndicators();
       }
     });
 
