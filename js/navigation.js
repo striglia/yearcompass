@@ -139,12 +139,26 @@ function setupNavigationListeners() {
   const sidebar = document.querySelector('.sidebar');
 
   if (sidebarToggle && sidebar) {
+    // Create overlay element for mobile
+    let overlay = document.querySelector('.sidebar-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+      document.querySelector('.app-layout').appendChild(overlay);
+    }
+
+    // Toggle sidebar
     sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      sidebarToggle.setAttribute(
-        'aria-expanded',
-        sidebar.classList.contains('open')
-      );
+      const isOpen = sidebar.classList.toggle('open');
+      overlay.classList.toggle('visible', isOpen);
+      sidebarToggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
+      sidebarToggle.setAttribute('aria-expanded', 'false');
     });
   }
 }
@@ -215,6 +229,7 @@ export function navigateToSection(sectionId, showNudge = true) {
   const sidebar = document.querySelector('.sidebar');
   if (sidebar?.classList.contains('open')) {
     sidebar.classList.remove('open');
+    document.querySelector('.sidebar-overlay')?.classList.remove('visible');
     document.querySelector('.sidebar-toggle')?.setAttribute('aria-expanded', 'false');
   }
 
