@@ -174,6 +174,43 @@ export function saveSettings(settings) {
   saveToLocalStorage();
 }
 
+/**
+ * Get the current section for the active year
+ * @returns {string} Current section ID or 'intro' as default
+ */
+export function getCurrentSection() {
+  const year = getCurrentYear();
+  return year?.currentSection || 'intro';
+}
+
+/**
+ * Save the current section for the active year
+ * @param {string} sectionId - Section ID to save
+ */
+export function saveCurrentSection(sectionId) {
+  const year = getCurrentYear();
+  if (year) {
+    year.currentSection = sectionId;
+    year.lastModified = new Date().toISOString();
+    debouncedSave();
+  }
+}
+
+/**
+ * Check if a section has any content filled
+ * @param {string} sectionId - Section ID to check
+ * @returns {boolean} True if section has any filled fields
+ */
+export function isSectionStarted(sectionId) {
+  const year = getCurrentYear();
+  if (!year?.sections[sectionId]?.answers) return false;
+
+  const answers = year.sections[sectionId].answers;
+  return Object.values(answers).some(value =>
+    value && typeof value === 'string' && value.trim().length > 0
+  );
+}
+
 // Debounce save operations
 let saveTimeout = null;
 function debouncedSave() {
