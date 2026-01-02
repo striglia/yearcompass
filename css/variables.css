@@ -4,20 +4,28 @@
  */
 
 :root {
-  /* Color Palette */
+  /* Color Palette - Warm, inviting tones */
   --color-background: #FAF8F5;
+  --color-background-subtle: #F5F2ED;
   --color-surface: #FFFFFF;
+  --color-surface-warm: #FFFDFB;
   --color-text: #3D3D3D;
   --color-text-muted: #6B6B6B;
-  --color-accent: #5B8A72; /* Muted teal */
+  --color-text-light: #8C8C8C;
+  --color-accent: #5B8A72; /* Muted teal - calming, nature-inspired */
   --color-accent-hover: #4A7360;
+  --color-accent-light: #E8F0EC;
   --color-success: #7CB38A;
+  --color-success-light: #E8F4EB;
   --color-border: #E8E4DF;
+  --color-border-light: #F0EDE8;
   --color-border-focus: #5B8A72;
+  --color-highlight: #FFF9E6; /* Warm highlight for emphasis */
 
-  /* Typography */
-  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  --font-family-heading: Georgia, 'Times New Roman', serif;
+  /* Typography - Warm, readable fonts */
+  --font-family-base: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-heading: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', monospace;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -25,6 +33,9 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 2rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
   --line-height-tight: 1.25;
   --line-height-base: 1.6;
   --line-height-relaxed: 1.75;
