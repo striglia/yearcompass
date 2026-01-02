@@ -6,6 +6,7 @@
 import { initStorage, getCurrentYear } from './storage.js';
 import { initNavigation } from './navigation.js';
 import { renderSection } from './render.js';
+import { initYearSelector, checkNewYearPrompt } from './year.js';
 
 /**
  * Initialize the YearCompass application
@@ -17,11 +18,17 @@ async function init() {
     // Initialize storage layer
     const storage = initStorage();
 
+    // Initialize year selector (creates first year if needed)
+    initYearSelector();
+
     // Get current year data
     const currentYear = getCurrentYear();
 
     // Initialize navigation
     initNavigation();
+
+    // Check if we should prompt for new year
+    checkNewYearPrompt();
 
     // Remove loading state
     const mainContent = document.getElementById('main-content');
