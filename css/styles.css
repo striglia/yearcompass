@@ -957,3 +957,100 @@ textarea::placeholder {
 .markdown-preview a:hover {
   text-decoration: underline;
 }
+
+/* Error States */
+.error-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+}
+
+.error-state h2 {
+  font-family: var(--font-family-heading);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
+}
+
+.error-state p {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Error Banner - persistent warning at top of page */
+.error-banner {
+  background-color: #FEF2F2;
+  border-bottom: 1px solid #FECACA;
+  padding: var(--spacing-md) var(--spacing-lg);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.error-banner-content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  position: relative;
+  padding-right: var(--spacing-2xl);
+}
+
+.error-banner strong {
+  color: #991B1B;
+  display: block;
+  margin-bottom: var(--spacing-xs);
+}
+
+.error-banner p {
+  color: #7F1D1D;
+  margin: 0 0 var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.error-banner .error-help {
+  color: #991B1B;
+  font-size: var(--font-size-xs);
+}
+
+.error-banner .btn {
+  margin-top: var(--spacing-sm);
+  margin-right: var(--spacing-sm);
+}
+
+.error-banner .dismiss-error {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: #991B1B;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  min-width: auto;
+  min-height: auto;
+}
+
+.error-banner .dismiss-error:hover {
+  color: #7F1D1D;
+}
+
+/* Error Toast - temporary notification */
+.error-toast {
+  position: fixed;
+  bottom: calc(var(--footer-height) + var(--spacing-lg));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background-color: #7F1D1D;
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  opacity: 0;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+  z-index: 200;
+  max-width: 90%;
+  text-align: center;
+}
+
+.error-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

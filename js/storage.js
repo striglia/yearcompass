@@ -9,6 +9,46 @@ const DATA_VERSION = 1;
 // In-memory cache of storage data
 let storageData = null;
 
+// Error callback for notifying UI of storage issues
+let onStorageError = null;
+
+/**
+ * Set the error callback for storage errors
+ * @param {Function} callback - Function to call on storage errors
+ */
+export function setStorageErrorCallback(callback) {
+  onStorageError = callback;
+}
+
+/**
+ * Report a storage error to the UI
+ * @param {string} type - Error type ('unavailable', 'quota', 'corrupt', 'parse')
+ * @param {string} message - User-friendly message
+ * @param {Error} originalError - Original error object (optional)
+ */
+function reportStorageError(type, message, originalError = null) {
+  console.error(`Storage error [${type}]:`, message, originalError);
+  if (onStorageError) {
+    onStorageError({ type, message, originalError });
+  }
+}
+
+/**
+ * Check if localStorage is available and working
+ * @returns {boolean} True if localStorage is available
+ */
+export function isLocalStorageAvailable() {
+  try {
+    const testKey = '__yearcompass_test__';
+    localStorage.setItem(testKey, 'test');
+    const result = localStorage.getItem(testKey);
+    localStorage.removeItem(testKey);
+    return result === 'test';
+  } catch (error) {
+    return false;
+  }
+}
+
 /**
  * Default storage structure
  */
@@ -26,21 +66,130 @@ function getDefaultData() {
 }
 
 /**
+ * Validate the structure of stored data
+ * @param {Object} data - Data to validate
+ * @returns {Object} Object with { valid: boolean, repaired: boolean, data: Object }
+ */
+function validateAndRepairData(data) {
+  let repaired = false;
+
+  // Must be an object
+  if (!data || typeof data !== 'object') {
+    reportStorageError('corrupt', 'Stored data is not a valid object. Starting fresh.');
+    return { valid: false, repaired: false, data: getDefaultData() };
+  }
+
+  // Ensure required properties exist
+  if (typeof data.version !== 'number') {
+    data.version = DATA_VERSION;
+    repaired = true;
+  }
+
+  if (!data.settings || typeof data.settings !== 'object') {
+    data.settings = getDefaultData().settings;
+    repaired = true;
+  }
+
+  if (!data.years || typeof data.years !== 'object') {
+    data.years = {};
+    repaired = true;
+  }
+
+  // Validate currentYear points to existing year
+  if (data.currentYear && !data.years[data.currentYear]) {
+    const yearIds = Object.keys(data.years);
+    data.currentYear = yearIds.length > 0 ? yearIds[yearIds.length - 1] : null;
+    repaired = true;
+  }
+
+  // Validate each year's structure
+  for (const yearId of Object.keys(data.years)) {
+    const year = data.years[yearId];
+
+    if (!year || typeof year !== 'object') {
+      delete data.years[yearId];
+      repaired = true;
+      continue;
+    }
+
+    // Ensure year has required properties
+    if (!year.id) year.id = yearId;
+    if (!year.displayName) year.displayName = yearId.replace('-', ' → ');
+    if (!year.createdAt) year.createdAt = new Date().toISOString();
+    if (!year.lastModified) year.lastModified = year.createdAt;
+    if (!year.sections || typeof year.sections !== 'object') {
+      year.sections = {};
+      repaired = true;
+    }
+
+    // Validate each section
+    for (const sectionId of Object.keys(year.sections)) {
+      const section = year.sections[sectionId];
+      if (!section || typeof section !== 'object') {
+        year.sections[sectionId] = { completed: false, answers: {} };
+        repaired = true;
+      } else if (!section.answers || typeof section.answers !== 'object') {
+        section.answers = {};
+        repaired = true;
+      }
+    }
+  }
+
+  if (repaired) {
+    console.warn('Data structure was repaired during validation');
+  }
+
+  return { valid: true, repaired, data };
+}
+
+/**
  * Initialize storage - load existing data or create new
  * @returns {Object} The storage data object
+ * @throws {Error} If localStorage is unavailable
  */
 export function initStorage() {
+  // Check localStorage availability first
+  if (!isLocalStorageAvailable()) {
+    reportStorageError(
+      'unavailable',
+      'Local storage is not available. Your browser may be in private mode or have storage disabled. Your progress cannot be saved.'
+    );
+    // Return default data but it won't persist
+    storageData = getDefaultData();
+    return storageData;
+  }
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      storageData = JSON.parse(stored);
-      // TODO: Handle data migration if version differs
+      let parsed;
+      try {
+        parsed = JSON.parse(stored);
+      } catch (parseError) {
+        reportStorageError(
+          'parse',
+          'Your saved data appears to be corrupted. Starting with a fresh workspace.',
+          parseError
+        );
+        storageData = getDefaultData();
+        saveToLocalStorage();
+        return storageData;
+      }
+
+      // Validate and repair data
+      const { valid, repaired, data } = validateAndRepairData(parsed);
+      storageData = data;
+
+      if (repaired) {
+        // Save repaired data
+        saveToLocalStorage();
+      }
     } else {
       storageData = getDefaultData();
       saveToLocalStorage();
     }
   } catch (error) {
-    console.error('Failed to load storage:', error);
+    reportStorageError('unknown', 'An unexpected error occurred while loading your data.', error);
     storageData = getDefaultData();
   }
 
@@ -49,13 +198,91 @@ export function initStorage() {
 
 /**
  * Save current data to localStorage
+ * @returns {boolean} True if save succeeded
  */
 function saveToLocalStorage() {
+  if (!isLocalStorageAvailable()) {
+    return false;
+  }
+
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(storageData));
+    const dataString = JSON.stringify(storageData);
+    localStorage.setItem(STORAGE_KEY, dataString);
+    return true;
   } catch (error) {
-    console.error('Failed to save to localStorage:', error);
-    // TODO: Handle quota exceeded error
+    // Check if it's a quota exceeded error
+    if (error.name === 'QuotaExceededError' ||
+        error.code === 22 ||
+        error.code === 1014 ||
+        (error.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+      reportStorageError(
+        'quota',
+        'Storage is full. Please export your data and clear old entries to continue saving.',
+        error
+      );
+    } else {
+      reportStorageError(
+        'save',
+        'Failed to save your progress. Please try again or export your data.',
+        error
+      );
+    }
+    return false;
+  }
+}
+
+/**
+ * Get the current storage usage in bytes
+ * @returns {Object} { used: number, total: number, percentage: number }
+ */
+export function getStorageUsage() {
+  try {
+    const dataString = localStorage.getItem(STORAGE_KEY) || '';
+    const used = new Blob([dataString]).size;
+    // Most browsers have ~5MB limit, but we'll estimate conservatively
+    const total = 5 * 1024 * 1024; // 5MB
+    return {
+      used,
+      total,
+      percentage: Math.round((used / total) * 100)
+    };
+  } catch (error) {
+    return { used: 0, total: 5 * 1024 * 1024, percentage: 0 };
+  }
+}
+
+/**
+ * Export all data as JSON string for backup
+ * @returns {string} JSON string of all data
+ */
+export function exportData() {
+  return JSON.stringify(storageData, null, 2);
+}
+
+/**
+ * Import data from JSON string
+ * @param {string} jsonString - JSON data to import
+ * @returns {Object} { success: boolean, message: string }
+ */
+export function importData(jsonString) {
+  try {
+    const data = JSON.parse(jsonString);
+    const { valid, data: validatedData } = validateAndRepairData(data);
+
+    if (!valid) {
+      return { success: false, message: 'The imported data is not valid YearCompass data.' };
+    }
+
+    storageData = validatedData;
+    const saved = saveToLocalStorage();
+
+    if (!saved) {
+      return { success: false, message: 'Could not save imported data. Storage may be full.' };
+    }
+
+    return { success: true, message: 'Data imported successfully.' };
+  } catch (error) {
+    return { success: false, message: 'The file is not valid JSON data.' };
   }
 }
 
