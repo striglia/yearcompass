@@ -10,6 +10,22 @@ import { renderSection } from './render.js';
 let currentSectionIndex = 0;
 
 /**
+ * Announce message to screen readers via live region
+ * @param {string} message - Message to announce
+ */
+export function announceToScreenReader(message) {
+  const announcer = document.getElementById('sr-announcements');
+  if (announcer) {
+    // Clear first to ensure announcement triggers even for same message
+    announcer.textContent = '';
+    // Use setTimeout to ensure the DOM update triggers announcement
+    setTimeout(() => {
+      announcer.textContent = message;
+    }, 50);
+  }
+}
+
+/**
  * Initialize navigation
  */
 export function initNavigation() {
@@ -238,6 +254,19 @@ export function navigateToSection(sectionId, showNudge = true) {
   if (mainContent) {
     mainContent.scrollTop = 0;
   }
+
+  // Announce section change to screen readers
+  const section = sections[sectionIndex];
+  announceToScreenReader(`Navigated to ${section.title}`);
+
+  // Focus on section title for keyboard users (after a brief delay for render)
+  setTimeout(() => {
+    const sectionTitle = mainContent?.querySelector('.section-title');
+    if (sectionTitle) {
+      sectionTitle.setAttribute('tabindex', '-1');
+      sectionTitle.focus();
+    }
+  }, 100);
 }
 
 /**

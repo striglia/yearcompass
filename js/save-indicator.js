@@ -3,6 +3,8 @@
  * Shows save status and last-saved timestamp
  */
 
+import { announceToScreenReader } from './navigation.js';
+
 let lastSaveTime = null;
 let updateInterval = null;
 
@@ -29,6 +31,9 @@ export function showSaved() {
     statusEl.textContent = 'Saved';
     statusEl.classList.remove('saving');
     statusEl.classList.add('saved');
+
+    // Announce to screen readers
+    announceToScreenReader('Progress saved');
 
     // After brief confirmation, show timestamp
     setTimeout(() => {
