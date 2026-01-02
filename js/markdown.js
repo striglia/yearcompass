@@ -98,23 +98,103 @@ function sanitizeHtml(html) {
  * @param {boolean} showPreview - Whether to show preview mode
  */
 export function togglePreview(textarea, showPreview) {
-  const container = textarea.parentElement;
-  let preview = container.querySelector('.markdown-preview');
+  const wrapper = textarea.closest('.markdown-wrapper');
+  if (!wrapper) return;
 
-  if (showPreview) {
-    if (!preview) {
-      preview = document.createElement('div');
-      preview.className = 'markdown-preview';
-      container.appendChild(preview);
+  const preview = wrapper.querySelector('.markdown-preview');
+  const toggleBtn = wrapper.querySelector('.markdown-toggle');
+
+  if (showPreview && textarea.value.trim()) {
+    if (preview) {
+      preview.innerHTML = renderMarkdown(textarea.value);
+      textarea.style.display = 'none';
+      preview.style.display = 'block';
+      if (toggleBtn) {
+        toggleBtn.textContent = 'Edit';
+        toggleBtn.setAttribute('aria-pressed', 'true');
+      }
     }
-
-    preview.innerHTML = renderMarkdown(textarea.value);
-    textarea.style.display = 'none';
-    preview.style.display = 'block';
   } else {
     textarea.style.display = 'block';
     if (preview) {
       preview.style.display = 'none';
     }
+    if (toggleBtn) {
+      toggleBtn.textContent = 'Preview';
+      toggleBtn.setAttribute('aria-pressed', 'false');
+    }
+    // Focus the textarea when switching to edit
+    if (showPreview === false) {
+      textarea.focus();
+    }
   }
+}
+
+/**
+ * Set up markdown support for a textarea
+ * @param {HTMLTextAreaElement} textarea - The textarea element
+ */
+export function setupMarkdownTextarea(textarea) {
+  // Skip if already set up or not markdown-enabled
+  if (textarea.dataset.markdownSetup || textarea.dataset.markdown !== 'true') {
+    return;
+  }
+
+  // Mark as set up
+  textarea.dataset.markdownSetup = 'true';
+
+  // Create wrapper
+  const wrapper = document.createElement('div');
+  wrapper.className = 'markdown-wrapper';
+
+  // Create toggle button
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'markdown-toggle btn btn-secondary';
+  toggle.textContent = 'Preview';
+  toggle.setAttribute('aria-pressed', 'false');
+  toggle.setAttribute('aria-label', 'Toggle markdown preview');
+
+  // Create preview container
+  const preview = document.createElement('div');
+  preview.className = 'markdown-preview';
+  preview.style.display = 'none';
+
+  // Wrap the textarea
+  textarea.parentNode.insertBefore(wrapper, textarea);
+  wrapper.appendChild(toggle);
+  wrapper.appendChild(textarea);
+  wrapper.appendChild(preview);
+
+  // Toggle button click
+  toggle.addEventListener('click', () => {
+    const isPreview = preview.style.display !== 'none';
+    togglePreview(textarea, !isPreview);
+  });
+
+  // Preview on blur (if content exists)
+  textarea.addEventListener('blur', () => {
+    if (textarea.value.trim()) {
+      // Small delay to allow click on toggle button
+      setTimeout(() => {
+        if (document.activeElement !== toggle) {
+          togglePreview(textarea, true);
+        }
+      }, 150);
+    }
+  });
+
+  // Edit on focus (click on preview)
+  preview.addEventListener('click', () => {
+    togglePreview(textarea, false);
+  });
+}
+
+/**
+ * Initialize markdown support for all markdown-enabled textareas in a container
+ * @param {HTMLElement} container - Container to search for textareas
+ */
+export function initMarkdownSupport(container = document) {
+  const textareas = container.querySelectorAll('textarea[data-markdown="true"]');
+  textareas.forEach(setupMarkdownTextarea);
 }
