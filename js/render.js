@@ -5,7 +5,7 @@
 
 import { sections } from '../data/questions.js';
 import { getCurrentYear, saveAnswer } from './storage.js';
-import { updateProgress, updateSidebarIndicators } from './navigation.js';
+import { updateProgress, updateSidebarIndicators, navigateToSection } from './navigation.js';
 import { initMarkdownSupport } from './markdown.js';
 import { showSaving, showSaved } from './save-indicator.js';
 
@@ -87,6 +87,27 @@ function renderInfoSection(container, section) {
     content.className = 'section-content';
     content.innerHTML = section.content;
     container.appendChild(content);
+  }
+
+  // Add Skip button for skippable sections
+  if (section.skippable) {
+    const skipContainer = document.createElement('div');
+    skipContainer.className = 'skip-container';
+
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'btn btn-link skip-btn';
+    skipBtn.textContent = 'Skip this step';
+    skipBtn.setAttribute('aria-label', `Skip ${section.title}`);
+    skipBtn.addEventListener('click', () => {
+      // Find next section and navigate to it
+      const currentIndex = sections.findIndex(s => s.id === section.id);
+      if (currentIndex < sections.length - 1) {
+        navigateToSection(sections[currentIndex + 1].id, false);
+      }
+    });
+
+    skipContainer.appendChild(skipBtn);
+    container.appendChild(skipContainer);
   }
 }
 

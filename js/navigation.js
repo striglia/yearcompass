@@ -324,6 +324,14 @@ function updateNavigationButtons() {
 
   if (nextBtn) {
     nextBtn.disabled = currentSectionIndex === sections.length - 1;
+
+    // Customize button text for intro section
+    const currentSection = sections[currentSectionIndex];
+    if (currentSection?.id === 'intro') {
+      nextBtn.textContent = 'Begin Your Journey';
+    } else {
+      nextBtn.textContent = 'Next';
+    }
   }
 }
 
