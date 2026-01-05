@@ -218,6 +218,10 @@ export function navigateToSection(sectionId, showNudge = true) {
   const navButtons = document.querySelectorAll('#sidebar-nav button');
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.sectionId === sectionId);
+    // Scroll active button into view in sidebar
+    if (btn.dataset.sectionId === sectionId) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   });
 
   // Update URL hash (without triggering hashchange)
