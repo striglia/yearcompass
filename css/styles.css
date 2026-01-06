@@ -76,7 +76,9 @@ body {
 #app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh; /* Fixed height for proper flex child scrolling */
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 /* Header */
@@ -182,6 +184,7 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  min-height: 0; /* Allow flex items to shrink below content size */
 }
 
 /* Sidebar */
@@ -192,6 +195,7 @@ body {
   overflow-y: auto;
   flex-shrink: 0;
   display: none;
+  min-height: 0; /* Allow scrolling within constrained height */
 }
 
 @media (min-width: 768px) {
